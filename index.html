@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Particle Vortex Interactive</title>
+    <title>Vortex Interactive Experience</title>
     <style>
-        body { margin: 0; overflow: hidden; background-color: #050505; font-family: 'Segoe UI', sans-serif; }
+        body { margin: 0; overflow: hidden; background-color: #050505; font-family: 'Segoe UI', sans-serif; cursor: crosshair; }
         #ui {
             position: absolute;
             top: 20px;
@@ -13,74 +13,80 @@
             color: white;
             z-index: 10;
             pointer-events: none;
-            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+            text-shadow: 0 0 15px rgba(0,255,136,0.5);
         }
-        .hint {
+        .status {
             position: absolute;
             bottom: 30px;
             width: 100%;
             text-align: center;
-            color: #555;
-            font-size: 0.9em;
-            letter-spacing: 2px;
+            color: #00ff88;
+            font-size: 0.8em;
+            letter-spacing: 3px;
             text-transform: uppercase;
             z-index: 5;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
         }
     </style>
 </head>
 <body>
     <div id="ui">
-        <h1>Vortex Render v1.2</h1>
-        <p>Simulación de flujo de partículas en tiempo real</p>
+        <h1>Vortex Render v2.0</h1>
+        <p>Calibrando flujo de datos...</p>
     </div>
     
-    <div class="hint">Haz clic en la pantalla para interactuar</div>
+    <div class="status" id="status-msg">Iniciando motor de partículas...</div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     
     <script>
-        // --- CONFIGURACIÓN DE ADSTERRA INCORPORADA ---
         const ADSTERRA_LINK = "https://www.profitablecpmratenetwork.com/i58ybjji?key=73a14d9c473c542264e3757a845ebfe8";
+        let canTrigger = false;
+        let clickCount = 0;
 
-        // Función para disparar la publicidad al hacer clic
-        function lanzarAds() {
-            window.open(ADSTERRA_LINK, '_blank');
+        // --- LÓGICA DE OPTIMIZACIÓN ---
+        
+        // Esperar 7 segundos antes de permitir que el anuncio se dispare
+        setTimeout(() => {
+            canTrigger = true;
+            document.getElementById('status-msg').innerText = "Sistema Sincronizado - Haz clic para interactuar";
+        }, 7000);
+
+        function gestionarClic() {
+            if (canTrigger) {
+                clickCount++;
+                // El anuncio salta solo después del segundo clic para asegurar interés
+                if (clickCount >= 2) {
+                    window.open(ADSTERRA_LINK, '_blank');
+                    clickCount = 0; // Reinicia para la siguiente interacción
+                }
+            }
         }
 
-        window.addEventListener('click', lanzarAds);
+        window.addEventListener('click', gestionarClic);
 
-        // --- CÓDIGO DE LA SIMULACIÓN ---
+        // --- MOTOR VISUAL ---
         let scene, camera, renderer, particles;
-        const count = 8000;
-
         function init() {
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-            camera.position.z = 4;
+            camera.position.z = 3;
 
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
 
             const geo = new THREE.BufferGeometry();
-            const positions = new Float32Array(count * 3);
-            const colors = new Float32Array(count * 3);
+            const pos = new Float32Array(10000 * 3);
+            for(let i=0; i<10000*3; i++) pos[i] = (Math.random()-0.5)*8;
+            geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
 
-            for(let i=0; i<count*3; i++) {
-                positions[i] = (Math.random() - 0.5) * 10;
-                colors[i] = Math.random();
-            }
-
-            geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-            const mat = new THREE.PointsMaterial({
-                size: 0.015,
-                vertexColors: true,
-                transparent: true,
-                opacity: 0.7
-            });
-
+            const mat = new THREE.PointsMaterial({ size: 0.01, color: 0x00ff88, transparent: true, opacity: 0.6 });
             particles = new THREE.Points(geo, mat);
             scene.add(particles);
 
@@ -89,8 +95,7 @@
 
         function animate() {
             requestAnimationFrame(animate);
-            particles.rotation.y += 0.001;
-            particles.rotation.x += 0.0005;
+            particles.rotation.y += 0.003;
             renderer.render(scene, camera);
         }
 
