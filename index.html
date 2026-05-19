@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Vortex Experience - Native Ads Top</title>
+    <title>3D Vortex Experience - Infinite Smart Ads</title>
     <style>
         body { margin: 0; overflow: hidden; background-color: #000; font-family: 'Segoe UI', sans-serif; cursor: move; }
         
-        /* Ajustamos el UI para que baje un poco y no se sature con el anuncio */
         #ui {
             position: absolute;
-            top: 130px; /* Bajado para dejar espacio al banner superior */
+            top: 140px; /* Margen para no chocar con el banner de arriba */
             left: 20px;
             color: #00ff88;
             z-index: 10;
@@ -20,7 +19,7 @@
         
         .status {
             position: absolute;
-            bottom: 20px;
+            bottom: 140px; /* Margen para no chocar con el banner de abajo */
             width: 100%;
             text-align: center;
             color: #fff;
@@ -39,24 +38,56 @@
             background: #00ff88;
             width: 0%;
             transition: width 1s linear;
-            z-index: 20;
+            z-index: 30;
         }
 
-        /* CONTENEDOR FLOTANTE EN LA PARTE SUPERIOR */
-        .ad-container {
+        /* CONTENEDORES INTELIGENTES COMPACTOS */
+        .ad-wrapper {
             position: absolute;
-            z-index: 15;
-            display: none; /* Oculto al inicio */
-            top: 20px; /* Cambiado de bottom a top */
+            z-index: 20;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.85);
             border: 1px solid rgba(0, 255, 136, 0.3);
-            padding: 10px;
             border-radius: 6px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
-            text-align: center;
-            min-width: 320px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.7);
+            padding: 5px;
+            display: none; /* Inician ocultos */
+            width: 90%;
+            max-width: 360px; /* Tamaño compacto ideal para móviles */
+            height: 100px; /* Limitamos la altura estricta */
+        }
+
+        .ad-top-position { top: 20px; }
+        .ad-bottom-position { bottom: 20px; }
+
+        /* Ajuste interno para recortar excesos del banner publicitario */
+        .ad-content {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* BOTÓN DE CIERRE (X) */
+        .close-ad-btn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #ff3b30;
+            color: white;
+            border: 1px solid #fff;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            z-index: 25;
         }
     </style>
 </head>
@@ -64,15 +95,20 @@
     <div id="timer-bar"></div>
     
     <div id="ui">
-        <h1>Vortex Render v3.5</h1>
+        <h1>Vortex Render v4.0</h1>
         <p id="desc">Inicializando entorno 3D...</p>
     </div>
     
     <div class="status" id="status-msg">Arrastra para rotar en 3D</div>
 
-    <div id="ad-bottom" class="ad-container">
-        <script async="async" data-cfasync="false" src="https://pl29489521.effectivecpmnetwork.com/c88c2570ee0a2707fe551159abbadfcb/invoke.js"></script>
-        <div id="container-c88c2570ee0a2707fe551159abbadfcb"></div>
+    <div id="ad-top-wrap" class="ad-wrapper ad-top-position">
+        <button class="close-ad-btn" onclick="cerrarYReiniciar('ad-top-wrap')">X</button>
+        <div id="ad-top-content" class="ad-content"></div>
+    </div>
+
+    <div id="ad-bottom-wrap" class="ad-wrapper ad-bottom-position">
+        <button class="close-ad-btn" onclick="cerrarYReiniciar('ad-bottom-wrap')">X</button>
+        <div id="ad-bottom-content" class="ad-content"></div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -80,8 +116,51 @@
     
     <script>
         let timeLeft = 10; 
+        let inicializado = false;
 
-        // --- TEMPORIZADOR ---
+        // --- FUNCIÓN PARA INYECTAR EL SCRIPT DE ADSTERRA DE FORMA DINÁMICA ---
+        function cargarScriptPublicitario(idContenedor) {
+            const contenedor = document.getElementById(idContenedor);
+            if (!contenedor) return;
+            
+            // Limpiamos contenido viejo para evitar duplicados residuales
+            contenedor.innerHTML = ""; 
+
+            // Creamos las etiquetas en tiempo de ejecución
+            const scriptElement = document.createElement('script');
+            scriptElement.async = true;
+            scriptElement.setAttribute('data-cfasync', 'false');
+            scriptElement.src = "https://pl29489521.effectivecpmnetwork.com/c88c2570ee0a2707fe551159abbadfcb/invoke.js";
+
+            const divContainer = document.createElement('div');
+            divContainer.id = "container-c88c2570ee0a2707fe551159abbadfcb";
+
+            // Inyectamos las piezas al DOM
+            contenedor.appendChild(scriptElement);
+            contenedor.appendChild(divContainer);
+        }
+
+        // --- MANEJO DE CIERRE Y REAPARICIÓN ---
+        function cerrarYReiniciar(idWrapper) {
+            // Ocultamos la caja del anuncio inmediatamente
+            const wrapper = document.getElementById(idWrapper);
+            wrapper.style.display = 'none';
+
+            // Determinamos qué zona de contenido limpiar (top o bottom)
+            const idContenido = idWrapper === 'ad-top-wrap' ? 'ad-top-content' : 'ad-bottom-content';
+            document.getElementById(idContenido).innerHTML = "";
+
+            // Temporizador aleatorio entre 5 y 8 segundos (5000ms a 8000ms)
+            const tiempoEspera = Math.floor(Math.random() * (8000 - 5000 + 1)) + 5000;
+
+            setTimeout(() => {
+                // Volvemos a renderizar un anuncio nuevo y mostramos la caja de nuevo
+                cargarScriptPublicitario(idContenido);
+                wrapper.style.display = 'block';
+            }, tiempoEspera);
+        }
+
+        // --- CRONÓMETRO DE ARRANQUE ---
         const timerInterval = setInterval(() => {
             timeLeft--;
             const progress = ((10 - timeLeft) / 10) * 100;
@@ -91,14 +170,18 @@
                 document.getElementById('desc').innerText = "Simulación Optimizada";
                 document.getElementById('status-msg').innerText = "Interacción 3D Activa";
                 
-                // Hace visible el bloque superior
-                document.getElementById('ad-bottom').style.display = 'block';
+                // Carga inicial simultánea arriba y abajo
+                cargarScriptPublicitario('ad-top-content');
+                cargarScriptPublicitario('ad-bottom-content');
+
+                document.getElementById('ad-top-wrap').style.display = 'block';
+                document.getElementById('ad-bottom-wrap').style.display = 'block';
                 
                 clearInterval(timerInterval);
             }
         }, 1000);
 
-        // --- MOTOR 3D INTERACTIVO ---
+        // --- SISTEMA GRÁFICO THREE.JS ---
         let scene, camera, renderer, particles, controls;
 
         function init() {
@@ -159,4 +242,5 @@
         init();
     </script>
 </body>
-</html>
+    </html>
+    
