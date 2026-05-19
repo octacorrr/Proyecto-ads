@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Vortex Experience</title>
+    <title>3D Vortex Experience - Native Ads</title>
     <style>
         body { margin: 0; overflow: hidden; background-color: #000; font-family: 'Segoe UI', sans-serif; cursor: move; }
+        
         #ui {
             position: absolute;
             top: 20px;
@@ -15,9 +16,10 @@
             pointer-events: none;
             text-shadow: 0 0 10px rgba(0,255,136,0.5);
         }
+        
         .status {
             position: absolute;
-            bottom: 30px;
+            bottom: 20px;
             width: 100%;
             text-align: center;
             color: #fff;
@@ -25,7 +27,9 @@
             letter-spacing: 3px;
             text-transform: uppercase;
             z-index: 5;
+            pointer-events: none;
         }
+        
         #timer-bar {
             position: absolute;
             top: 0;
@@ -34,51 +38,64 @@
             background: #00ff88;
             width: 0%;
             transition: width 1s linear;
+            z-index: 20;
+        }
+
+        /* CONTENEDOR FLOTANTE PARA EL BANNER NATIVO */
+        .ad-container {
+            position: absolute;
+            z-index: 15;
+            display: none; /* Permanecerá oculto al inicio */
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            padding: 10px;
+            border-radius: 6px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            text-align: center;
+            min-width: 320px; /* Asegura el espacio mínimo para banners nativos */
         }
     </style>
 </head>
 <body>
     <div id="timer-bar"></div>
+    
     <div id="ui">
-        <h1>Vortex Render v3.0</h1>
+        <h1>Vortex Render v3.5</h1>
         <p id="desc">Inicializando entorno 3D...</p>
     </div>
     
     <div class="status" id="status-msg">Arrastra para rotar en 3D</div>
 
+    <div id="ad-bottom" class="ad-container">
+        <script async="async" data-cfasync="false" src="https://pl29489521.effectivecpmnetwork.com/c88c2570ee0a2707fe551159abbadfcb/invoke.js"></script>
+        <div id="container-c88c2570ee0a2707fe551159abbadfcb"></div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     
     <script>
-        const ADSTERRA_LINK = "https://www.profitablecpmratenetwork.com/i58ybjji?key=73a14d9c473c542264e3757a845ebfe8";
-        let canTrigger = false;
-        let clickCount = 0;
-        let timeLeft = 10; // Segundos para activar el link
+        let timeLeft = 10; 
 
-        // --- LÓGICA DE TEMPORIZADOR Y BARRA ---
+        // --- TEMPORIZADOR PARA MOSTRAR EL CONTENEDOR ---
         const timerInterval = setInterval(() => {
             timeLeft--;
             const progress = ((10 - timeLeft) / 10) * 100;
             document.getElementById('timer-bar').style.width = progress + "%";
             
             if (timeLeft <= 0) {
-                canTrigger = true;
-                document.getElementById('desc').innerText = "Motor Sincronizado";
-                document.getElementById('status-msg').innerText = "Calibración completa. Toca para continuar.";
+                document.getElementById('desc').innerText = "Simulación Optimizada";
+                document.getElementById('status-msg').innerText = "Interacción 3D Activa";
+                
+                // Hace visible el bloque donde pusimos tu script nativo
+                document.getElementById('ad-bottom').style.display = 'block';
+                
                 clearInterval(timerInterval);
             }
         }, 1000);
-
-        function gestionarClic() {
-            if (canTrigger) {
-                clickCount++;
-                if (clickCount >= 1) { // Salta al primer clic después del tiempo
-                    window.open(ADSTERRA_LINK, '_blank');
-                    clickCount = 0;
-                }
-            }
-        }
-        window.addEventListener('mousedown', gestionarClic);
 
         // --- MOTOR 3D INTERACTIVO ---
         let scene, camera, renderer, particles, controls;
@@ -92,11 +109,10 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
 
-            // Controles de órbita para mover en 3D
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.autoRotate = true;
-            controls.autoRotateSpeed = 0.5;
+            controls.autoRotateSpeed = 0.4;
 
             const geo = new THREE.BufferGeometry();
             const pos = new Float32Array(15000 * 3);
@@ -129,7 +145,7 @@
 
         function animate() {
             requestAnimationFrame(animate);
-            controls.update(); // Actualiza el movimiento del usuario
+            controls.update(); 
             renderer.render(scene, camera);
         }
 
