@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Vortex Experience - Native Ads</title>
+    <title>3D Vortex Experience - Native Ads Top</title>
     <style>
         body { margin: 0; overflow: hidden; background-color: #000; font-family: 'Segoe UI', sans-serif; cursor: move; }
         
+        /* Ajustamos el UI para que baje un poco y no se sature con el anuncio */
         #ui {
             position: absolute;
-            top: 20px;
+            top: 130px; /* Bajado para dejar espacio al banner superior */
             left: 20px;
             color: #00ff88;
             z-index: 10;
@@ -41,12 +42,12 @@
             z-index: 20;
         }
 
-        /* CONTENEDOR FLOTANTE PARA EL BANNER NATIVO */
+        /* CONTENEDOR FLOTANTE EN LA PARTE SUPERIOR */
         .ad-container {
             position: absolute;
             z-index: 15;
-            display: none; /* Permanecerá oculto al inicio */
-            bottom: 60px;
+            display: none; /* Oculto al inicio */
+            top: 20px; /* Cambiado de bottom a top */
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.6);
@@ -55,7 +56,7 @@
             border-radius: 6px;
             box-shadow: 0 0 20px rgba(0,0,0,0.8);
             text-align: center;
-            min-width: 320px; /* Asegura el espacio mínimo para banners nativos */
+            min-width: 320px;
         }
     </style>
 </head>
@@ -80,7 +81,7 @@
     <script>
         let timeLeft = 10; 
 
-        // --- TEMPORIZADOR PARA MOSTRAR EL CONTENEDOR ---
+        // --- TEMPORIZADOR ---
         const timerInterval = setInterval(() => {
             timeLeft--;
             const progress = ((10 - timeLeft) / 10) * 100;
@@ -90,7 +91,7 @@
                 document.getElementById('desc').innerText = "Simulación Optimizada";
                 document.getElementById('status-msg').innerText = "Interacción 3D Activa";
                 
-                // Hace visible el bloque donde pusimos tu script nativo
+                // Hace visible el bloque superior
                 document.getElementById('ad-bottom').style.display = 'block';
                 
                 clearInterval(timerInterval);
